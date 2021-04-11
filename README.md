@@ -18,7 +18,7 @@ class Trip
 end
 
 TripPreparer = interface {
-  prepare NilClass
+  prepare(Trip, Trip)
 }
 
 class Mechanic
@@ -30,6 +30,7 @@ class Mechanic
 
   def prepare(trip)
     puts "clean the bikes"
+    trip
   end
 end
 
@@ -38,6 +39,7 @@ class TravelAgent
 
   def prepare(trip)
     puts "book tickets"
+    trip
   end
 end
 
