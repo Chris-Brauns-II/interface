@@ -15,11 +15,14 @@ end
 
 TripPreparer = interface {
   prepare NilClass
-  foo NilClass
 }
 
 class Mechanic
   implements TripPreparer
+
+  def initialize
+    puts "new Mechanic created"
+  end
 
   def prepare(trip)
     puts "clean the bikes"

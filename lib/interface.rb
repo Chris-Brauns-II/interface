@@ -22,8 +22,9 @@ module Interface
 
       attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, #{a.type})" }.join(",")
       init = <<-RUBY
-        def initialize
-          @attributes = [#{attributes_string}]
+        def initialize(*)
+          @__attributes = [#{attributes_string}]
+          super
           after_initialize
         end
       RUBY
@@ -49,7 +50,7 @@ module Interface
       def return_value(value)
         c = caller[0]
         (_, method) = c.split(/`([a-zA-Z!?_]+)'/)
-        raise IncorrectReturnType unless @attributes.detect { |a| a.name == method.to_sym }.type == value.class
+        raise IncorrectReturnType unless @__attributes.detect { |a| a.name == method.to_sym }.type == value.class
         value
       end
 
