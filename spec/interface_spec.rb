@@ -83,7 +83,7 @@ RSpec.describe Interface do
         end
       end
 
-      it "raises" do
+      it "does not raise" do
         expect { mechanic.new.prepare(Trip.new) }.not_to raise_error
       end
     end
