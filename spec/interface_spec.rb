@@ -2,7 +2,7 @@ require "interface"
 require "pry"
 
 Employee = interface {
-  employed?
+  salary Integer
 }
 
 RSpec.describe Interface do
@@ -24,12 +24,48 @@ RSpec.describe Interface do
         Class.new do
           implements Employee
 
-          def employed?; end
+          def salary
+            1
+          end
         end
       end
 
       it "does not raise" do
         expect { employee_class.new }.not_to raise_error
+      end
+    end
+  end
+
+  describe "method call" do
+    context "when incorrect return type" do
+      let(:employee_class) do
+        Class.new do
+          implements Employee
+
+          def salary
+            "foo"
+          end
+        end
+      end
+
+      it "raises" do
+        expect { employee_class.new.salary }.to raise_error(described_class::IncorrectReturnType)
+      end
+    end
+
+    context "when correct return type" do
+      let(:employee_class) do
+        Class.new do
+          implements Employee
+
+          def salary
+            1
+          end
+        end
+      end
+
+      it "raises" do
+        expect { employee_class.new.salary }.not_to raise_error
       end
     end
   end
