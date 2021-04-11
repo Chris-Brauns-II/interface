@@ -19,8 +19,6 @@ module Interface
     attributes = DSL.run(&block)
 
     Module.new do
-      module_eval("def run_checks; " + attributes.map { |a| "raise DoesNotImplementError, :#{a.name} if self.method(:#{a.name}).super_method.nil?;" }.join("") + "end")
-
       attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, #{a.argument_types}, #{a.return_type})" }.join(",")
       init = <<-RUBY
         def initialize(*)
@@ -42,19 +40,10 @@ module Interface
 
       module_eval(init)
 
+      module_eval("def run_checks; " + attributes.map { |a| "raise DoesNotImplementError, :#{a.name} if self.method(:#{a.name}).super_method.nil?;" }.join("") + "end")
+
       def after_initialize
         run_checks
-      end
-
-      def return_value(value)
-        c = caller[0]
-        (_, method) = c.split(/`([a-zA-Z!?_]+)'/)
-        raise IncorrectReturnType unless @__attributes.detect { |a| a.name == method.to_sym }.return_type == value.class
-        value
-      end
-
-      def self.included(base)
-        base.const_set(:Interface_Attributes, self)
       end
     end
   end
