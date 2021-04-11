@@ -4,7 +4,7 @@ Class.class_eval do
   end
 end
 
-Attribute = Struct.new(:name, :type)
+Attribute = Struct.new(:name, :argument_types, :return_type)
 
 def interface(&block)
   Interface.for_messages(&block)
@@ -20,7 +20,7 @@ module Interface
     Module.new do
       module_eval("def run_checks; " + attributes.map { |a| "raise DoesNotImplementError, :#{a.name} if self.method(:#{a.name}).super_method.nil?;" }.join("") + "end")
 
-      attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, #{a.type})" }.join(",")
+      attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, nil, #{a.return_type})" }.join(",")
       init = <<-RUBY
         def initialize(*)
           @__attributes = [#{attributes_string}]
@@ -33,7 +33,7 @@ module Interface
         method_wrapper = <<-RUBY
           def #{a.name}(*)
             super.tap do |return_val|
-              raise IncorrectReturnType unless return_val.class == #{a.type}
+              raise IncorrectReturnType unless return_val.class == #{a.return_type}
             end
           end
         RUBY
@@ -50,7 +50,7 @@ module Interface
       def return_value(value)
         c = caller[0]
         (_, method) = c.split(/`([a-zA-Z!?_]+)'/)
-        raise IncorrectReturnType unless @__attributes.detect { |a| a.name == method.to_sym }.type == value.class
+        raise IncorrectReturnType unless @__attributes.detect { |a| a.name == method.to_sym }.return_type == value.class
         value
       end
 
@@ -76,6 +76,6 @@ class DSL
   end
 
   def method_missing(name, *args, **kwargs)
-    attributes << Attribute.new(name, args.first)
+    attributes << Attribute.new(name, nil, args.last)
   end
 end

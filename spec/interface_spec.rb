@@ -1,71 +1,74 @@
 require "interface"
 require "pry"
 
-Employee = interface {
-  salary Integer
+class Trip
+end
+
+TripPreparer = interface {
+  prepare Trip
 }
 
 RSpec.describe Interface do
   describe "initialization" do
     context "when class doesn't define interface messages" do
-      let(:employee_class) do
+      let(:mechanic) do
         Class.new do
-          implements Employee
+          implements TripPreparer
         end
       end
 
       it "raises" do
-        expect { employee_class.new }.to raise_error(described_class::DoesNotImplementError)
+        expect { mechanic.new }.to raise_error(described_class::DoesNotImplementError)
       end
     end
 
     context "when class defines interface messages" do
-      let(:employee_class) do
+      let(:mechanic) do
         Class.new do
-          implements Employee
+          implements TripPreparer
 
-          def salary
-            1
+          def prepare
+            Trip.new
           end
         end
       end
 
       it "does not raise" do
-        expect { employee_class.new }.not_to raise_error
+        expect { mechanic.new }.not_to raise_error
       end
     end
   end
 
   describe "method call" do
     context "when incorrect return type" do
-      let(:employee_class) do
+      let(:mechanic) do
         Class.new do
-          implements Employee
+          implements TripPreparer
 
-          def salary
+          def prepare
             "foo"
           end
         end
       end
 
       it "raises" do
-        expect { employee_class.new.salary }.to raise_error(described_class::IncorrectReturnType)
+        expect { mechanic.new.prepare }.to raise_error(described_class::IncorrectReturnType)
       end
     end
 
     context "when correct return type" do
-      let(:employee_class) do
+      let(:mechanic) do
         Class.new do
-          implements Employee
+          implements TripPreparer
 
-          def salary
-            1
+          def prepare
+            Trip.new
           end
         end
       end
 
       it "raises" do
-        expect { employee_class.new.salary }.not_to raise_error
+        expect { mechanic.new.prepare }.not_to raise_error
       end
     end
   end
