@@ -5,7 +5,7 @@ class Trip
 end
 
 TripPreparer = interface {
-  prepare Trip
+  prepare(Trip, Trip)
 }
 
 RSpec.describe Interface do
@@ -40,7 +40,7 @@ RSpec.describe Interface do
   end
 
   describe "method call" do
-    context "when incorrect return type" do
+    context "when incorrect arguments" do
       let(:mechanic) do
         Class.new do
           implements TripPreparer
@@ -52,7 +52,23 @@ RSpec.describe Interface do
       end
 
       it "raises" do
-        expect { mechanic.new.prepare }.to raise_error(described_class::IncorrectReturnType)
+        expect { mechanic.new.prepare }.to raise_error(described_class::IncorrectArgumentsError)
+      end
+    end
+
+    context "when incorrect return type" do
+      let(:mechanic) do
+        Class.new do
+          implements TripPreparer
+
+          def prepare(trip)
+            "foo"
+          end
+        end
+      end
+
+      it "raises" do
+        expect { mechanic.new.prepare(Trip.new) }.to raise_error(described_class::IncorrectReturnType)
       end
     end
 
@@ -61,14 +77,14 @@ RSpec.describe Interface do
         Class.new do
           implements TripPreparer
 
-          def prepare
-            Trip.new
+          def prepare(trip)
+            trip
           end
         end
       end
 
       it "raises" do
-        expect { mechanic.new.prepare }.not_to raise_error
+        expect { mechanic.new.prepare(Trip.new) }.not_to raise_error
       end
     end
   end

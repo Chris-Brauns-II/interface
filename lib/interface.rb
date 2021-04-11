@@ -13,6 +13,7 @@ end
 module Interface
   DoesNotImplementError = Class.new(StandardError)
   IncorrectReturnType = Class.new(StandardError)
+  IncorrectArgumentsError = Class.new(StandardError)
 
   def self.for_messages(&block)
     attributes = DSL.run(&block)
@@ -20,7 +21,7 @@ module Interface
     Module.new do
       module_eval("def run_checks; " + attributes.map { |a| "raise DoesNotImplementError, :#{a.name} if self.method(:#{a.name}).super_method.nil?;" }.join("") + "end")
 
-      attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, nil, #{a.return_type})" }.join(",")
+      attributes_string = attributes.map { |a| "Attribute.new(:#{a.name}, #{a.argument_types}, #{a.return_type})" }.join(",")
       init = <<-RUBY
         def initialize(*)
           @__attributes = [#{attributes_string}]
@@ -30,13 +31,11 @@ module Interface
       RUBY
 
       attributes.each do |a|
-        method_wrapper = <<-RUBY
-          def #{a.name}(*)
-            super.tap do |return_val|
-              raise IncorrectReturnType unless return_val.class == #{a.return_type}
-            end
-          end
-        RUBY
+        argument_checks = a.argument_types.each_with_index.map do |at, i|
+          "raise IncorrectArgumentsError unless args[#{i}].class == #{at.name};"
+        end.join(" ")
+
+        method_wrapper = "def #{a.name}(*args); #{argument_checks} super.tap do |return_val| raise IncorrectReturnType unless return_val.class == #{a.return_type}; end; end"
 
         module_eval(method_wrapper)
       end
@@ -76,6 +75,6 @@ class DSL
   end
 
   def method_missing(name, *args, **kwargs)
-    attributes << Attribute.new(name, nil, args.last)
+    attributes << Attribute.new(name, args[0..-2], args.last)
   end
 end
