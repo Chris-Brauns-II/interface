@@ -1,6 +1,10 @@
-require './lib/interface'
-require 'pry'
+# Interface
 
+A gem for making interfaces
+
+# Example
+
+```ruby
 class Trip
   attr_reader :preparers
 
@@ -41,3 +45,4 @@ Trip.new([
   Mechanic.new,
   TravelAgent.new
 ]).prepare
+```
