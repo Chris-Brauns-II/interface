@@ -1,3 +1,4 @@
+[![Gem Version](https://badge.fury.io/rb/interface_semantics.svg)](https://badge.fury.io/rb/interface_semantics)
 # Interface
 
 A gem for making interfaces
