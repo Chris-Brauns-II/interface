@@ -1,14 +1,13 @@
-require "interface"
-require "pry"
-
-class Trip
-end
-
-TripPreparer = interface {
-  prepare(Trip, Trip)
-}
+require "interface_semantics"
 
 RSpec.describe Interface do
+  class Trip
+  end
+
+  TripPreparer = interface {
+    prepare(Trip, Trip)
+  }
+
   describe "initialization" do
     context "when class doesn't define interface messages" do
       let(:mechanic) do
