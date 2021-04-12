@@ -2,6 +2,11 @@
 
 A gem for making interfaces
 
+# Usage
+
+```
+gem install interface_semantics
+```
 # Example
 
 ```ruby
